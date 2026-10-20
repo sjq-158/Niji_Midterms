@@ -1,0 +1,31 @@
+@page "/novels"
+@inject CatalogService Catalog
+
+<PageTitle>niji - Novels</PageTitle>
+
+<div class="mx-auto max-w-[1280px] px-6 py-8">
+    <div class="mb-8 flex flex-wrap gap-4 border-b-2 border-line pb-4">
+        @foreach (var f in _filters)
+        {
+            <button class="pill @(f == _filter ? "active" : "")" @onclick="() => _filter = f">@f</button>
+        }
+    </div>
+
+    <SpotlightCarousel Items="_novels" />
+
+    <h2 class="section-title mb-4">Popular Webnovels</h2>
+    <div class="grid grid-cols-2 gap-6 md:grid-cols-5">
+        @foreach (var n in _novels)
+        {
+            <CoverCard Item="n" Height="h-64" />
+        }
+    </div>
+</div>
+
+@code {
+    private IReadOnlyList<Title> _novels = [];
+    private readonly string[] _filters = ["Genres ▾", "By Volume", "Trending Webnovels"];
+    private string _filter = "Genres ▾";
+
+    protected override void OnInitialized() => _novels = Catalog.GetTitles(TitleKind.Novel);
+}
