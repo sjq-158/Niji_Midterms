@@ -2,15 +2,16 @@
 @page "/register"
 @using System.ComponentModel.DataAnnotations
 @inject NavigationManager Nav
+@inject AccountService Account
 
 <PageTitle>niji - @(IsRegister ? "Create Account" : "Sign In")</PageTitle>
 
-<div class="flex items-center justify-center px-6 py-16">
-    <div class="flex w-full max-w-[950px] overflow-hidden rounded-3xl border-[3px] border-line bg-card shadow-[0_15px_35px_rgba(0,0,0,0.08)]">
+<div class="flex w-full flex-1 items-center justify-center px-6 py-12">
+    <div class="flex w-full max-w-[950px] overflow-hidden rounded-[24px] border-[3px] border-line bg-card shadow-[0_15px_35px_rgba(0,0,0,0.08)]">
 
-        <div class="flex flex-1 flex-col justify-center p-12">
-            <h2 class="mb-2 font-display text-3xl font-bold">@(IsRegister ? "Create Account" : "Welcome Back")</h2>
-            <p class="mb-8 text-sm opacity-75">
+        <div class="flex flex-1 flex-col justify-center px-12 py-14">
+            <h2 class="mb-2 font-display text-[2.2rem] font-extrabold text-ink">@(IsRegister ? "Create Account" : "Welcome Back")</h2>
+            <p class="mb-8 text-[0.9rem] text-ink opacity-80">
                 @(IsRegister ? "Start tracking your favorite webtoons and novels on niji today."
                              : "Enter your details to access your niji library.")
             </p>
@@ -19,6 +20,11 @@
                 <DataAnnotationsValidator />
                 <ValidationSummary class="mb-4 text-sm text-red-600" />
 
+                @if (_error is not null)
+                {
+                    <p class="mb-4 text-sm font-semibold text-red-600">@_error</p>
+                }
+
                 @if (IsRegister)
                 {
                     <InputText class="form-input" placeholder="Full Name" @bind-Value="_form.FullName" />
@@ -26,26 +32,31 @@
                 <InputText class="form-input" placeholder="Email Address" @bind-Value="_form.Email" />
                 <InputText type="password" class="form-input" placeholder="Password" @bind-Value="_form.Password" />
 
-                <button type="submit" class="mt-2 w-full cursor-pointer rounded-[10px] border-2 border-line bg-ink py-3.5 font-display font-extrabold uppercase text-page hover:opacity-90">
+                <button type="submit" class="mt-2 w-full cursor-pointer rounded-[10px] border-2 border-line bg-ink p-[0.9rem] font-display text-base font-extrabold uppercase text-page">
                     @(IsRegister ? "Sign Up" : "Sign In")
                 </button>
             </EditForm>
 
-            <p class="mt-6 text-center text-sm">
+            @if (!IsRegister)
+            {
+                <p class="mt-4 text-center text-xs text-muted">Demo account: demo@niji.com / niji123</p>
+            }
+
+            <div class="mt-6 text-center text-[0.9rem] text-ink">
                 @if (IsRegister)
                 {
-                    <span>Already a member? <a class="font-semibold text-accent" href="/login">Sign In</a></span>
+                    <span>Already a member? <a class="font-extrabold underline" href="/login">Sign In</a></span>
                 }
                 else
                 {
-                    <span>Don't have an account? <a class="font-semibold text-accent" href="/register">Sign Up</a></span>
+                    <span>Don't have an account? <a class="font-extrabold underline" href="/register">Sign Up</a></span>
                 }
-            </p>
+            </div>
         </div>
 
-        <div class="hidden flex-1 flex-col items-center justify-center border-l-[3px] border-line bg-linear-to-br from-[#3B507D] to-[#112250] p-12 text-center text-[#F5F4F0] md:flex">
-            <h3 class="mb-4 font-display text-2xl font-bold">@(IsRegister ? "Join the Community" : "Dive Into Stories")</h3>
-            <p class="max-w-[280px] text-[0.95rem] opacity-85">
+        <div class="hidden flex-1 flex-col items-center justify-center border-l-[3px] border-line bg-panel px-12 py-14 text-center text-ink md:flex">
+            <h3 class="mb-4 font-display text-[1.8rem] font-extrabold">@(IsRegister ? "Join the Community" : "Dive Into Stories")</h3>
+            <p class="max-w-[320px] text-[0.95rem] leading-[1.6] opacity-90">
                 @(IsRegister ? "Get updates on new chapters, custom reading passes, and exclusive recommendations every single day."
                              : "Track your weekly reading schedule, bookmark favorites, and unlock webtoons and webnovels seamlessly.")
             </p>
@@ -55,9 +66,25 @@
 
 @code {
     private readonly AuthForm _form = new();
+    private string? _error;
     private bool IsRegister => Nav.Uri.Contains("/register", StringComparison.OrdinalIgnoreCase);
 
-    private void Submit() => Nav.NavigateTo("/");
+    private void Submit()
+    {
+        if (IsRegister)
+        {
+            _error = Account.Register(_form.FullName, _form.Email, _form.Password);
+            if (_error is null) Nav.NavigateTo("/library");
+        }
+        else if (Account.Login(_form.Email, _form.Password))
+        {
+            Nav.NavigateTo("/library");
+        }
+        else
+        {
+            _error = "Invalid email or password.";
+        }
+    }
 
     private class AuthForm
     {
