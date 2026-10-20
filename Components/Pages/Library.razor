@@ -1,0 +1,104 @@
+@page "/library"
+@implements IDisposable
+@inject CatalogService Catalog
+@inject AccountService Account
+@inject NavigationManager Nav
+
+<PageTitle>niji - My Library</PageTitle>
+
+<div class="mx-auto w-full max-w-[1100px] px-6 py-10">
+    <div class="mb-6 flex items-end justify-between border-b-2 border-line pb-2">
+        <h1 class="section-title">My Library</h1>
+        <span class="text-sm font-semibold text-muted">@_rows.Count saved</span>
+    </div>
+
+    <div class="mb-8 flex flex-wrap gap-3">
+        <button class="pill @(_filter is null ? "active" : "")" @onclick="() => SetFilter(null)">All</button>
+        @foreach (var s in Enum.GetValues<ReadingStatus>())
+        {
+            var status = s;
+            <button class="pill @(_filter == status ? "active" : "")" @onclick="() => SetFilter(status)">@status</button>
+        }
+    </div>
+
+    @if (!_rows.Any())
+    {
+        <div class="border-[3px] border-line bg-panel p-10 text-center shadow-brutal">
+            <p class="mb-4 font-display font-bold text-ink">Nothing here yet.</p>
+            <a href="/comics" class="btn-cta">Browse Comics</a>
+        </div>
+    }
+    else
+    {
+        <div class="grid gap-4">
+            @foreach (var (entry, title) in _rows)
+            {
+                <div class="flex items-center gap-5 border-[3px] border-line bg-page p-4 shadow-brutal-sm">
+                    <a href="/title/@title.Id"
+                       class="size-24 shrink-0 border-2 border-line bg-cover bg-center"
+                       style="background-image:url('@title.ImageUrl')"></a>
+
+                    <div class="flex-1">
+                        <a href="/title/@title.Id" class="font-display text-lg font-extrabold text-ink">@title.Name</a>
+                        <div class="text-xs font-semibold text-muted">@title.Byline</div>
+                        <div class="mt-1 text-xs text-muted">Added @entry.AddedOn.ToLocalTime().ToString("MMM d, yyyy")</div>
+                    </div>
+
+                    <select class="rounded-[10px] border-2 border-line bg-field px-3 py-2 text-sm text-ink"
+                            value="@entry.Status"
+                            @onchange="ev => ChangeStatus(entry.Id, ev.Value?.ToString())">
+                        @foreach (var s in Enum.GetValues<ReadingStatus>())
+                        {
+                            <option value="@s">@s</option>
+                        }
+                    </select>
+
+                    <button class="btn-solid" @onclick="() => Remove(entry.Id)">Remove</button>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<(LibraryEntry Entry, Title Title)> _rows = [];
+    private ReadingStatus? _filter;
+
+    protected override void OnInitialized()
+    {
+        if (!Account.IsLoggedIn)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+        Account.Changed += OnAccountChanged;
+        Load();
+    }
+
+    private void Load()
+    {
+        _rows = Account.GetLibrary()
+            .Where(e => _filter is null || e.Status == _filter)
+            .Select(e => (Entry: e, Title: Catalog.GetTitle(e.TitleId)))
+            .Where(x => x.Title is not null)
+            .Select(x => (x.Entry, x.Title!))
+            .ToList();
+    }
+
+    private void SetFilter(ReadingStatus? status) { _filter = status; Load(); }
+
+    private void ChangeStatus(int entryId, string? value)
+    {
+        if (Enum.TryParse<ReadingStatus>(value, out var status))
+        {
+            Account.UpdateStatus(entryId, status);
+            Load();
+        }
+    }
+
+    private void Remove(int entryId) { Account.Remove(entryId); Load(); }
+
+    private void OnAccountChanged() => InvokeAsync(() => { Load(); StateHasChanged(); });
+
+    public void Dispose() => Account.Changed -= OnAccountChanged;
+}
