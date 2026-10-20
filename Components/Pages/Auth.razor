@@ -1,0 +1,72 @@
+@page "/login"
+@page "/register"
+@using System.ComponentModel.DataAnnotations
+@inject NavigationManager Nav
+
+<PageTitle>niji - @(IsRegister ? "Create Account" : "Sign In")</PageTitle>
+
+<div class="flex items-center justify-center px-6 py-16">
+    <div class="flex w-full max-w-[950px] overflow-hidden rounded-3xl border-[3px] border-line bg-card shadow-[0_15px_35px_rgba(0,0,0,0.08)]">
+
+        <div class="flex flex-1 flex-col justify-center p-12">
+            <h2 class="mb-2 font-display text-3xl font-bold">@(IsRegister ? "Create Account" : "Welcome Back")</h2>
+            <p class="mb-8 text-sm opacity-75">
+                @(IsRegister ? "Start tracking your favorite webtoons and novels on niji today."
+                             : "Enter your details to access your niji library.")
+            </p>
+
+            <EditForm Model="_form" OnValidSubmit="Submit">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="mb-4 text-sm text-red-600" />
+
+                @if (IsRegister)
+                {
+                    <InputText class="form-input" placeholder="Full Name" @bind-Value="_form.FullName" />
+                }
+                <InputText class="form-input" placeholder="Email Address" @bind-Value="_form.Email" />
+                <InputText type="password" class="form-input" placeholder="Password" @bind-Value="_form.Password" />
+
+                <button type="submit" class="mt-2 w-full cursor-pointer rounded-[10px] border-2 border-line bg-ink py-3.5 font-display font-extrabold uppercase text-page hover:opacity-90">
+                    @(IsRegister ? "Sign Up" : "Sign In")
+                </button>
+            </EditForm>
+
+            <p class="mt-6 text-center text-sm">
+                @if (IsRegister)
+                {
+                    <span>Already a member? <a class="font-semibold text-accent" href="/login">Sign In</a></span>
+                }
+                else
+                {
+                    <span>Don't have an account? <a class="font-semibold text-accent" href="/register">Sign Up</a></span>
+                }
+            </p>
+        </div>
+
+        <div class="hidden flex-1 flex-col items-center justify-center border-l-[3px] border-line bg-linear-to-br from-[#3B507D] to-[#112250] p-12 text-center text-[#F5F4F0] md:flex">
+            <h3 class="mb-4 font-display text-2xl font-bold">@(IsRegister ? "Join the Community" : "Dive Into Stories")</h3>
+            <p class="max-w-[280px] text-[0.95rem] opacity-85">
+                @(IsRegister ? "Get updates on new chapters, custom reading passes, and exclusive recommendations every single day."
+                             : "Track your weekly reading schedule, bookmark favorites, and unlock webtoons and webnovels seamlessly.")
+            </p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private readonly AuthForm _form = new();
+    private bool IsRegister => Nav.Uri.Contains("/register", StringComparison.OrdinalIgnoreCase);
+
+    private void Submit() => Nav.NavigateTo("/");
+
+    private class AuthForm
+    {
+        public string FullName { get; set; } = "";
+
+        [Required, EmailAddress]
+        public string Email { get; set; } = "";
+
+        [Required, MinLength(6, ErrorMessage = "Password must be at least 6 characters.")]
+        public string Password { get; set; } = "";
+    }
+}
