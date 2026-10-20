@@ -1,0 +1,82 @@
+@import "tailwindcss";
+@source "../Components";
+
+:root {
+  --bg-primary: #F5F4F0;
+  --bg-secondary: #E7E2CE;
+  --bg-accent: #3B507D;
+  --text-main: #112250;
+  --text-muted: #3B507D;
+  --border-color: #112250;
+  --badge-bg: #112250;
+  --badge-text: #F5F4F0;
+  --input-bg: #F8F9FA;
+  --card-bg: #FFFFFF;
+}
+
+[data-theme="dark"] {
+  --bg-primary: #112250;
+  --bg-secondary: #1A2F5E;
+  --bg-accent: #3B507D;
+  --text-main: #F5F4F0;
+  --text-muted: #E7E2CE;
+  --border-color: #BEB7A7;
+  --badge-bg: #E7E2CE;
+  --badge-text: #112250;
+  --input-bg: #112250;
+  --card-bg: #1A2F5E;
+}
+
+@theme inline {
+  --color-page: var(--bg-primary);
+  --color-panel: var(--bg-secondary);
+  --color-accent: var(--bg-accent);
+  --color-ink: var(--text-main);
+  --color-muted: var(--text-muted);
+  --color-line: var(--border-color);
+  --color-badge: var(--badge-bg);
+  --color-badge-ink: var(--badge-text);
+  --color-field: var(--input-bg);
+  --color-card: var(--card-bg);
+  --font-brand: "Moo Lah Lah", cursive;
+  --font-display: "Montserrat", sans-serif;
+  --font-body: "Poppins", sans-serif;
+  --shadow-brutal: 4px 4px 0 var(--border-color);
+  --shadow-brutal-sm: 3px 3px 0 var(--border-color);
+}
+
+@layer base {
+  body {
+    @apply bg-page font-body text-ink;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+}
+
+@layer components {
+  .nav-link { @apply rounded px-3 py-1.5 font-display text-sm font-bold uppercase text-ink; }
+  .nav-link.active { @apply bg-accent text-[#F5F4F0]; }
+
+  .icon-btn { @apply flex cursor-pointer items-center justify-center border-2 border-line bg-panel p-1.5 text-ink; }
+  .square-btn { @apply flex size-9 cursor-pointer items-center justify-center border-2 border-line bg-panel text-lg font-black text-ink shadow-[2px_2px_0_var(--border-color)]; }
+
+  .btn-solid { @apply inline-block cursor-pointer border-2 border-line bg-ink px-5 py-2 font-display text-xs font-extrabold uppercase text-page; }
+  .btn-cta { @apply inline-block cursor-pointer border-2 border-line bg-panel px-7 py-3 font-display font-extrabold uppercase text-ink shadow-brutal transition hover:-translate-x-0.5 hover:-translate-y-0.5; }
+
+  .pill { @apply cursor-pointer rounded-full border-2 border-line bg-panel px-5 py-1.5 font-display text-xs font-bold text-ink; }
+  .pill.active, .pill:hover { @apply bg-ink text-page; }
+
+  .tag { @apply border border-line bg-badge px-2 py-0.5 font-display text-[0.65rem] font-bold uppercase text-badge-ink; }
+  .section-title { @apply font-display text-3xl font-extrabold text-ink; }
+
+  .cover-card { @apply overflow-hidden border-2 border-line bg-page transition hover:-translate-y-1 hover:shadow-[4px_6px_0_var(--border-color)]; }
+
+  .day-tab { @apply flex-1 cursor-pointer border-r-2 border-line py-4 text-center font-display font-extrabold text-ink last:border-r-0; }
+  .day-tab.active, .day-tab:hover { @apply bg-ink text-page; }
+
+  .rank-badge {
+    @apply absolute -bottom-3.5 left-2.5 z-10 font-display text-7xl font-black leading-none text-ink;
+    text-shadow: 3px 3px 0 var(--bg-primary), -3px -3px 0 var(--bg-primary);
+  }
+
+  .form-input { @apply mb-5 w-full rounded-[10px] border-2 border-line bg-field px-4 py-3 text-ink outline-none focus:border-accent; }
+}
