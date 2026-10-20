@@ -485,3 +485,7 @@ $RECYCLE.BIN/
 
 node_modules/
 wwwroot/css/tailwind.css
+
+# added
+node_modules/
+wwwroot/css/tailwind.css
