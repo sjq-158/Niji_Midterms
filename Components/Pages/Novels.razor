@@ -3,7 +3,7 @@
 
 <PageTitle>niji - Novels</PageTitle>
 
-<div class="mx-auto max-w-[1280px] px-6 py-8">
+<div class="mx-auto w-full max-w-[1280px] px-6 py-8">
     <div class="mb-8 flex flex-wrap gap-4 border-b-2 border-line pb-4">
         @foreach (var f in _filters)
         {
@@ -11,21 +11,27 @@
         }
     </div>
 
-    <SpotlightCarousel Items="_novels" />
+    <SpotlightCarousel Items="_spotlight" Height="h-[400px]" Large="true" />
 
-    <h2 class="section-title mb-4">Popular Webnovels</h2>
+    <h2 class="section-title mb-4 !text-2xl">Popular Webnovels</h2>
     <div class="grid grid-cols-2 gap-6 md:grid-cols-5">
         @foreach (var n in _novels)
         {
-            <CoverCard Item="n" Height="h-64" />
+            <CoverCard Item="n" Height="h-[260px]" Subtitle="@n.Byline" />
         }
     </div>
 </div>
 
 @code {
     private IReadOnlyList<Title> _novels = [];
+    private IReadOnlyList<SpotlightItem> _spotlight = [];
+
     private readonly string[] _filters = ["Genres ▾", "By Volume", "Trending Webnovels"];
     private string _filter = "Genres ▾";
 
-    protected override void OnInitialized() => _novels = Catalog.GetTitles(TitleKind.Novel);
+    protected override void OnInitialized()
+    {
+        _novels = Catalog.GetTitles(TitleKind.Novel);
+        _spotlight = Catalog.GetSpotlight(TitleKind.Novel);
+    }
 }

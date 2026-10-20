@@ -1,9 +1,9 @@
 @page "/comics"
 @inject CatalogService Catalog
 
-<PageTitle>niji - Comics</PageTitle>
+<PageTitle>niji - Webcomics</PageTitle>
 
-<div class="mx-auto max-w-[1280px] px-6 py-8">
+<div class="mx-auto w-full max-w-[1280px] px-6 py-8">
     <div class="mb-8 flex flex-wrap gap-4 border-b-2 border-line pb-4">
         @foreach (var f in _filters)
         {
@@ -11,34 +11,49 @@
         }
     </div>
 
-    <SpotlightCarousel Items="_comics.Take(6).ToList()" />
+    <SpotlightCarousel Items="_spotlight" Height="h-[380px]" />
 
-    <div class="mb-12 flex flex-wrap justify-around gap-6 border-2 border-line bg-panel p-6">
-        @foreach (var (icon, label) in _categories)
+    <div class="mb-12 flex justify-around border-2 border-line bg-panel p-6">
+        @foreach (var (label, svg) in _categories)
         {
-            <div class="flex cursor-pointer flex-col items-center gap-2 font-display text-xs font-extrabold">
-                <div class="flex size-[50px] items-center justify-center rounded-full border-2 border-line bg-page text-xl">@icon</div>
+            <div class="flex cursor-pointer flex-col items-center gap-2 font-display text-xs font-extrabold text-ink">
+                <div class="flex size-[50px] items-center justify-center rounded-full border-2 border-line bg-page">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">@((MarkupString)svg)</svg>
+                </div>
                 @label
             </div>
         }
     </div>
 
-    <h2 class="section-title mb-4">New &amp; Trending Webcomics</h2>
+    <h2 class="section-title mb-4 !text-2xl">New &amp; Trending Webcomics</h2>
     <div class="grid grid-cols-2 gap-6 md:grid-cols-5">
         @foreach (var c in _comics)
         {
-            <CoverCard Item="c" Height="h-64" />
+            <CoverCard Item="c" Height="h-[250px]" />
         }
     </div>
 </div>
 
 @code {
     private IReadOnlyList<Title> _comics = [];
+    private IReadOnlyList<SpotlightItem> _spotlight = [];
+
     private readonly string[] _filters = ["Genres ▾", "Daily Updates", "Completed", "Trending"];
     private string _filter = "Genres ▾";
 
-    private readonly (string, string)[] _categories =
-        [("🎯", "Target"), ("🔥", "Hot Reads"), ("♾️", "Unlimited"), ("⚡", "Updates"), ("📈", "Trending")];
+    private readonly (string Label, string Svg)[] _categories =
+    [
+        ("Target", """<circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>"""),
+        ("Hot Reads", """<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>"""),
+        ("Unlimited", """<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>"""),
+        ("Updates", """<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>"""),
+        ("Trending", """<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline>""")
+    ];
 
-    protected override void OnInitialized() => _comics = Catalog.GetTitles(TitleKind.Comic);
+    protected override void OnInitialized()
+    {
+        // Same order as the grid in comics.html
+        _comics = Catalog.GetByIds(3, 6, 9, 5, 1, 2, 10, 7, 4, 8);
+        _spotlight = Catalog.GetSpotlight(TitleKind.Comic);
+    }
 }

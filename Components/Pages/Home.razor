@@ -5,28 +5,28 @@
 
 <section class="grid overflow-hidden border-b-[3px] border-line md:grid-cols-2">
     <div class="flex flex-col justify-center bg-accent px-12 py-16 text-[#F5F4F0] md:border-r-[3px] md:border-line">
-        <h1 class="mb-5 font-display text-5xl font-black leading-[1.1]">@Hero.Title</h1>
-        <p class="mb-8 leading-relaxed text-panel">@Hero.Desc</p>
+        <h1 class="mb-[1.2rem] font-display text-[3.2rem] font-black leading-[1.1]">@Hero.Title</h1>
+        <p class="mb-8 leading-[1.6] text-panel">@Hero.Desc</p>
         <a href="/comics" class="btn-cta self-start">Start Reading</a>
     </div>
     <div class="relative flex min-h-[380px] items-end bg-cover bg-center p-10"
          style="background-image:url('@Hero.Image')">
-        <div class="absolute inset-0 bg-[#112250]/35"></div>
+        <div class="absolute inset-0 bg-[#112250]/45"></div>
         <div class="absolute right-5 top-5 z-10 flex gap-2">
-            <button class="square-btn" @onclick="PrevHero">‹</button>
-            <button class="square-btn" @onclick="NextHero">›</button>
+            <button class="square-btn !size-10 !text-[1.2rem]" @onclick="PrevHero">‹</button>
+            <button class="square-btn !size-10 !text-[1.2rem]" @onclick="NextHero">›</button>
         </div>
         <div class="relative z-10 w-full border-[3px] border-line bg-page px-8 py-6 shadow-[6px_6px_0_var(--border-color)]">
             <span class="text-xs font-extrabold uppercase text-muted">@Hero.Tag</span>
-            <h2 class="font-display text-3xl font-extrabold">@Hero.CardTitle</h2>
-            <p class="mt-1 text-sm">@Hero.CardSub</p>
+            <h2 class="font-display text-[1.8rem] font-extrabold text-ink">@Hero.CardTitle</h2>
+            <p class="mt-[0.3rem] text-[0.85rem] text-ink">@Hero.CardSub</p>
         </div>
     </div>
 </section>
 
-<div class="mx-auto max-w-[1280px] px-6 py-12">
+<div class="mx-auto w-full max-w-[1280px] px-6 py-12">
 
-    <div class="mb-6 border-b-2 border-line pb-2"><h2 class="section-title">Weekly Schedule</h2></div>
+    <div class="mb-6 flex items-end justify-between border-b-2 border-line pb-2"><h2 class="section-title">Weekly Schedule</h2></div>
     <div class="mb-16 border-[3px] border-line bg-page shadow-brutal">
         <div class="flex border-b-[3px] border-line bg-panel">
             @foreach (var d in _days)
@@ -38,22 +38,22 @@
         </div>
         <div class="p-8">
             <div class="mb-6 flex items-center justify-between">
-                <h3 class="font-display text-2xl font-black uppercase">@_day Lineup</h3>
+                <h3 class="font-display text-[1.4rem] font-black uppercase text-ink">@_day Lineup</h3>
                 <div class="flex gap-2">
-                    <button class="square-btn" @onclick="PrevDay">‹</button>
-                    <button class="square-btn" @onclick="NextDay">›</button>
+                    <button class="square-btn !size-10 !text-[1.2rem]" @onclick="PrevDay">‹</button>
+                    <button class="square-btn !size-10 !text-[1.2rem]" @onclick="NextDay">›</button>
                 </div>
             </div>
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach (var (entry, title) in Catalog.GetSchedule(_day))
                 {
-                    <div class="cover-card shadow-brutal-sm">
-                        <div class="h-48 border-b-2 border-line bg-cover bg-center" style="background-image:url('@title.ImageUrl')"></div>
+                    <a href="/title/@title.Id" class="flex flex-col overflow-hidden border-2 border-line bg-page shadow-brutal-sm">
+                        <div class="h-60 border-b-2 border-line bg-cover bg-center" style="background-image:url('@title.Image(400)')"></div>
                         <div class="p-4">
-                            <div class="font-display font-extrabold">@title.Name</div>
-                            <div class="mt-0.5 text-xs text-muted">@entry.Episode</div>
+                            <div class="font-display font-extrabold text-ink">@title.Name</div>
+                            <div class="mt-[0.2rem] text-xs text-muted">@entry.Episode</div>
                         </div>
-                    </div>
+                    </a>
                 }
             </div>
         </div>
@@ -66,30 +66,30 @@
     <div class="mb-16 grid grid-cols-2 gap-6 md:grid-cols-5">
         @foreach (var (t, i) in Catalog.GetTrending().Select((t, i) => (t, i)))
         {
-            <CoverCard Item="t" Rank="i + 1" Height="h-72" />
+            <CoverCard Item="t" Rank="i + 1" Height="h-[280px]" Subtitle="@t.Genre" ShowBadge="true" />
         }
     </div>
 
-    <div class="mb-6 border-b-2 border-line pb-2"><h2 class="section-title">Explore Popular Genres</h2></div>
+    <div class="mb-6 flex items-end justify-between border-b-2 border-line pb-2"><h2 class="section-title">Explore Popular Genres</h2></div>
     <div class="mb-16 grid grid-cols-2 gap-4 md:grid-cols-5">
-        @foreach (var (name, n) in _genres)
+        @foreach (var (name, photo) in _genres)
         {
-            <div class="relative flex h-[120px] cursor-pointer items-end overflow-hidden border-2 border-line bg-cover bg-center p-3"
-                 style="background-image:url('@CatalogService.Img(n, 400)')">
+            <div class="relative flex h-[120px] cursor-pointer items-end overflow-hidden border-2 border-line bg-cover bg-center p-[0.8rem]"
+                 style="background-image:url('@Img(photo, 400)')">
                 <div class="absolute inset-0 bg-linear-to-t from-[#112250]/85 to-transparent"></div>
-                <span class="relative z-10 font-display font-extrabold uppercase text-[#F5F4F0]">@name</span>
+                <span class="relative z-[1] font-display font-extrabold uppercase text-[#F5F4F0]">@name</span>
             </div>
         }
     </div>
 
-    <div class="grid border-[3px] border-line bg-panel md:grid-cols-[300px_1fr]">
-        <div class="min-h-[250px] border-line bg-cover bg-center md:border-r-[3px]"
-             style="background-image:url('@CatalogService.Img(3, 600)')"></div>
+    <div class="mb-8 grid border-[3px] border-line bg-panel md:grid-cols-[320px_1fr]">
+        <div class="min-h-[260px] border-line bg-cover bg-center md:border-r-[3px]"
+             style="background-image:url('@Img(Photos.Banner, 800)')"></div>
         <div class="flex flex-col justify-center p-10">
-            <span class="font-display text-xs font-extrabold uppercase text-muted">niji exclusive webnovel</span>
-            <h3 class="my-1.5 font-display text-3xl font-black">Omniscient Reader's Viewpoint</h3>
-            <p class="mb-6 text-sm">Immerse yourself in the dark fantasy webnovel that inspired the hit webcomic. Read all published chapters free with Pass on niji.</p>
-            <a href="/novels" class="btn-cta self-start !px-5 !py-2.5 text-sm">Read Webnovel</a>
+            <span class="font-display text-[0.8rem] font-extrabold uppercase text-muted">NIJI EXCLUSIVE WEBNOVEL</span>
+            <h3 class="my-[0.4rem] font-display text-[2rem] font-black text-ink">Under the Oak Tree</h3>
+            <p class="mb-6 text-[0.9rem] text-ink">Follow the captivating story of Maximilian and Riftan in this world-renowned fantasy web novel. Read free on niji.</p>
+            <a href="/novels" class="btn-cta self-start !px-[1.4rem] !py-[0.6rem] !text-[0.8rem]">Read Webnovel</a>
         </div>
     </div>
 </div>
@@ -97,14 +97,16 @@
 @code {
     private record HeroSlide(string Title, string Desc, string Image, string Tag, string CardTitle, string CardSub);
 
+    private static string Img(string photo, int width) => Models.Title.Url(photo, width);
+
     private readonly HeroSlide[] _slides =
     [
         new("Discover Your Next Favorite Story",
             "Explore thousands of digital webcomics and light novels updated daily. Dive into high-stakes action, romance, and exclusive niji original series.",
-            CatalogService.Img(5, 1200), "FEATURED ORIGINAL", "Omniscient Reader's Viewpoint", "The world has ended, and a new novel has begun."),
-        new("Unleash Epic Fantasy Worlds",
-            "Journey across magical kingdoms and witness legendary battles between gods and mortals in our curated fantasy catalog.",
-            CatalogService.Img(3, 1200), "NEW SEASON", "Solo Leveling", "Rise from the weakest hunter to the sovereign of shadows.")
+            Img(Photos.OakTree, 1200), "FEATURED ORIGINAL", "Under the Oak Tree", "A grand romance of chivalry, magic, and devotion."),
+        new("Unleash Epic Action & Fantasy",
+            "Journey across perilous dungeons and witness legendary shadow sovereigns in our curated action library.",
+            Img(Photos.Hunter, 1200), "NEW SEASON", "Solo Leveling", "Rise from the weakest hunter to the sovereign of shadows.")
     ];
 
     private readonly DayOfWeek[] _days =
@@ -113,7 +115,11 @@
         DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday
     ];
 
-    private readonly (string, int)[] _genres = [("Romance", 2), ("Fantasy", 5), ("Action", 1), ("Thriller", 0), ("Sci-Fi", 4)];
+    private readonly (string Name, string Photo)[] _genres =
+    [
+        ("Romance", Photos.OakTree), ("Fantasy", Photos.Hunter), ("Action", Photos.Boxer),
+        ("Thriller", Photos.Count), ("Sci-Fi", Photos.Reader)
+    ];
 
     private int _hero;
     private DayOfWeek _day = DayOfWeek.Monday;

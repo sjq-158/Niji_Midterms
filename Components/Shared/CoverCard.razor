@@ -1,23 +1,30 @@
-<article class="cover-card flex flex-col">
-    <div class="relative border-b-2 border-line bg-cover bg-center @Height"
-         style="background-image:url('@Item.ImageUrl')">
-        @if (!string.IsNullOrEmpty(Item.Badge))
-        {
-            <span class="tag absolute left-2.5 top-2.5">@Item.Badge</span>
-        }
-        @if (Rank is not null)
-        {
-            <span class="rank-badge">@Rank</span>
-        }
-    </div>
-    <div class="p-3 @(Rank is null ? "" : "pt-6")">
-        <h3 class="font-display text-base font-extrabold text-ink">@Item.Name</h3>
-        <p class="text-xs font-semibold text-muted">@Item.Genre</p>
-    </div>
-</article>
+<a href="/title/@Item.Id" class="block">
+    <article class="cover-card flex flex-col">
+        <div class="relative border-b-2 border-line bg-cover bg-center @Height"
+             style="background-image:url('@Item.ImageUrl')">
+            @if (ShowBadge && !string.IsNullOrEmpty(Item.Badge))
+            {
+                <span class="tag absolute left-2.5 top-2.5">@Item.Badge</span>
+            }
+            @if (Rank is not null)
+            {
+                <span class="rank-badge">@Rank</span>
+            }
+        </div>
+        <div class="@(Rank is null ? "p-[0.8rem]" : "px-[0.8rem] pb-[0.8rem] pt-6")">
+            <h3 class="font-display font-extrabold text-ink @(Rank is null ? "text-[0.95rem]" : "text-base")">@Item.Name</h3>
+            @if (!string.IsNullOrWhiteSpace(Subtitle))
+            {
+                <p class="text-xs @(Rank is null ? "" : "font-semibold") text-muted">@Subtitle</p>
+            }
+        </div>
+    </article>
+</a>
 
 @code {
     [Parameter, EditorRequired] public Title Item { get; set; } = default!;
     [Parameter] public int? Rank { get; set; }
-    [Parameter] public string Height { get; set; } = "h-64";
+    [Parameter] public string Height { get; set; } = "h-[250px]";
+    [Parameter] public string? Subtitle { get; set; }
+    [Parameter] public bool ShowBadge { get; set; }
 }
