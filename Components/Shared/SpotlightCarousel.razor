@@ -1,0 +1,35 @@
+<div class="mb-12">
+    <div class="mb-4 flex justify-end gap-2">
+        <button class="square-btn" @onclick="Prev">‹</button>
+        <button class="square-btn" @onclick="Next">›</button>
+    </div>
+    <div class="grid gap-6 md:grid-cols-3">
+        @foreach (var t in CurrentPage)
+        {
+            <div class="relative flex h-[380px] flex-col justify-end overflow-hidden border-[3px] border-line bg-cover bg-center p-6 shadow-brutal"
+                 style="background-image:url('@t.ImageUrl')">
+                <div class="absolute inset-0 bg-linear-to-t from-[#112250]/95 from-25% to-transparent"></div>
+                <div class="relative z-10">
+                    <div class="font-display text-2xl font-black leading-tight text-[#F5F4F0]">@t.Name</div>
+                    <p class="mt-1 text-sm text-[#E7E2CE]">@t.Tagline</p>
+                    <div class="mt-3 flex gap-2">
+                        <span class="tag">@t.Badge</span>
+                        <span class="tag">@t.Genre.Split('·')[0].Trim()</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<Title> Items { get; set; } = [];
+    [Parameter] public int PageSize { get; set; } = 3;
+
+    private int _page;
+    private int Pages => Math.Max(1, (int)Math.Ceiling(Items.Count / (double)PageSize));
+    private IEnumerable<Title> CurrentPage => Items.Skip(_page * PageSize).Take(PageSize);
+
+    private void Next() => _page = (_page + 1) % Pages;
+    private void Prev() => _page = (_page - 1 + Pages) % Pages;
+}
