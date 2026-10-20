@@ -1,26 +1,87 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
+@inject AccountService Account
+@inject NavigationManager Nav
 
-<header class="sticky top-0 z-50 flex h-[75px] items-center justify-between border-b-[3px] border-line bg-page px-8">
+<header class="sticky top-0 z-[1000] flex h-[75px] items-center justify-between border-b-[3px] border-line bg-page px-8">
     <div class="flex items-center">
-        <a href="/" class="mr-8 font-brand text-[3.2rem] leading-none tracking-wide text-ink">niji</a>
-        <nav class="flex items-center gap-6">
+        <a href="/" class="mr-8 font-brand text-[3.2rem] leading-none tracking-[1px] text-ink">niji</a>
+        <nav class="flex h-full items-center gap-6">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink>
             <NavLink class="nav-link" href="comics">Comics</NavLink>
             <NavLink class="nav-link" href="novels">Novels</NavLink>
+            @if (Account.IsLoggedIn)
+            {
+                <NavLink class="nav-link" href="library">Library</NavLink>
+            }
         </nav>
     </div>
+
     <div class="flex items-center gap-4">
-        <button type="button" class="icon-btn" title="Toggle theme" onclick="toggleTheme()">◐</button>
-        <div class="hidden items-center gap-2 border-2 border-line bg-page px-3 py-1.5 md:flex">
-            <input type="text" placeholder="Search titles, authors..." class="w-44 bg-transparent text-sm outline-none" />
-            <span>🔍</span>
-        </div>
-        <a href="/login" class="btn-solid">Log In</a>
+        <button type="button" class="icon-btn" title="Toggle Theme" onclick="toggleTheme()">
+            <svg class="theme-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+            <svg class="theme-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+        </button>
+
+        @if (!BareHeader)
+        {
+            <div class="hidden items-center gap-2 border-2 border-line bg-page px-[0.8rem] py-[0.4rem] md:flex">
+                <input type="text" placeholder="Search titles, authors..." class="w-[180px] bg-transparent text-[0.85rem] text-ink outline-none" />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+        }
+
+        @if (Account.IsLoggedIn)
+        {
+            <span class="hidden font-display text-xs font-bold md:inline">@Account.CurrentUser!.FullName</span>
+            <button type="button" class="btn-solid" @onclick="Logout">Log Out</button>
+        }
+        else if (!BareHeader)
+        {
+            <a href="/login" class="btn-solid">Log In</a>
+        }
     </div>
 </header>
 
 <main>@Body</main>
 
-<footer class="border-t-[3px] border-line bg-ink px-8 py-12 text-center text-sm text-page">
+<footer class="border-t-[3px] border-line bg-ink px-8 py-10 text-center text-[0.85rem] text-page">
     <p>&copy; 2026 niji Entertainment. All Rights Reserved.</p>
 </footer>
+
+@code {
+    // comics.html and novel.html show only the theme button in their header.
+    private bool BareHeader =>
+        new Uri(Nav.Uri).AbsolutePath.TrimEnd('/').ToLowerInvariant() is "/comics" or "/novels";
+
+    protected override void OnInitialized()
+    {
+        Account.Changed += Refresh;
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    private void Refresh() => InvokeAsync(StateHasChanged);
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => InvokeAsync(StateHasChanged);
+
+    private void Logout()
+    {
+        Account.Logout();
+        Nav.NavigateTo("/");
+    }
+
+    public void Dispose()
+    {
+        Account.Changed -= Refresh;
+        Nav.LocationChanged -= OnLocationChanged;
+    }
+}
