@@ -1,0 +1,44 @@
+@page "/comics"
+@inject CatalogService Catalog
+
+<PageTitle>niji - Comics</PageTitle>
+
+<div class="mx-auto max-w-[1280px] px-6 py-8">
+    <div class="mb-8 flex flex-wrap gap-4 border-b-2 border-line pb-4">
+        @foreach (var f in _filters)
+        {
+            <button class="pill @(f == _filter ? "active" : "")" @onclick="() => _filter = f">@f</button>
+        }
+    </div>
+
+    <SpotlightCarousel Items="_comics.Take(6).ToList()" />
+
+    <div class="mb-12 flex flex-wrap justify-around gap-6 border-2 border-line bg-panel p-6">
+        @foreach (var (icon, label) in _categories)
+        {
+            <div class="flex cursor-pointer flex-col items-center gap-2 font-display text-xs font-extrabold">
+                <div class="flex size-[50px] items-center justify-center rounded-full border-2 border-line bg-page text-xl">@icon</div>
+                @label
+            </div>
+        }
+    </div>
+
+    <h2 class="section-title mb-4">New &amp; Trending Webcomics</h2>
+    <div class="grid grid-cols-2 gap-6 md:grid-cols-5">
+        @foreach (var c in _comics)
+        {
+            <CoverCard Item="c" Height="h-64" />
+        }
+    </div>
+</div>
+
+@code {
+    private IReadOnlyList<Title> _comics = [];
+    private readonly string[] _filters = ["Genres ▾", "Daily Updates", "Completed", "Trending"];
+    private string _filter = "Genres ▾";
+
+    private readonly (string, string)[] _categories =
+        [("🎯", "Target"), ("🔥", "Hot Reads"), ("♾️", "Unlimited"), ("⚡", "Updates"), ("📈", "Trending")];
+
+    protected override void OnInitialized() => _comics = Catalog.GetTitles(TitleKind.Comic);
+}
