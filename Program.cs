@@ -2,6 +2,9 @@ using Niji_Midterms.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// added for Razor Components - Step 6
+builder.Services.AddSingleton<Niji_Midterms.Services.CatalogService>();
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
