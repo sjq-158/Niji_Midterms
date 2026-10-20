@@ -1,0 +1,66 @@
+@page "/title/{Id:int}"
+@inject CatalogService Catalog
+@inject AccountService Account
+@inject NavigationManager Nav
+
+<PageTitle>niji - @(_title?.Name ?? "Not Found")</PageTitle>
+
+<div class="mx-auto w-full max-w-[1100px] px-6 py-12">
+    @if (_title is null)
+    {
+        <h1 class="section-title mb-4">Title not found</h1>
+        <a href="/comics" class="btn-cta">Back to Comics</a>
+    }
+    else
+    {
+        <div class="grid border-[3px] border-line bg-panel shadow-brutal md:grid-cols-[340px_1fr]">
+            <div class="min-h-[420px] border-line bg-cover bg-center md:border-r-[3px]"
+                 style="background-image:url('@_title.ImageUrl')"></div>
+
+            <div class="flex flex-col justify-center p-10">
+                <div class="mb-3 flex gap-2">
+                    <span class="tag">@_title.Badge</span>
+                    <span class="tag">@_title.Kind</span>
+                </div>
+                <h1 class="font-display text-4xl font-black leading-tight text-ink">@_title.Name</h1>
+                <p class="mt-1 text-sm font-semibold text-muted">@(string.IsNullOrWhiteSpace(_title.Genre) ? "" : _title.Genre + " · ")by @_title.Author</p>
+
+                <p class="my-6 leading-relaxed text-ink">
+                    @(string.IsNullOrWhiteSpace(_title.Tagline) ? "A featured niji series." : _title.Tagline)
+                </p>
+
+                <div class="flex flex-wrap gap-3">
+                    <button class="btn-cta" @onclick="Toggle">
+                        @(_inLibrary ? "✓ In My Library" : "+ Add to Library")
+                    </button>
+                    <a href="@BackHref" class="btn-cta !bg-page">Back</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Title? _title;
+    private bool _inLibrary;
+
+    private string BackHref => _title?.Kind == TitleKind.Novel ? "/novels" : "/comics";
+
+    protected override void OnParametersSet()
+    {
+        _title = Catalog.GetTitle(Id);
+        _inLibrary = Account.IsInLibrary(Id);
+    }
+
+    private void Toggle()
+    {
+        if (!Account.IsLoggedIn)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+        _inLibrary = Account.ToggleLibrary(Id);
+    }
+}
