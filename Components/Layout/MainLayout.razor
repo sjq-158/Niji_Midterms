@@ -1,23 +1,26 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
+<header class="sticky top-0 z-50 flex h-[75px] items-center justify-between border-b-[3px] border-line bg-page px-8">
+    <div class="flex items-center">
+        <a href="/" class="mr-8 font-brand text-[3.2rem] leading-none tracking-wide text-ink">niji</a>
+        <nav class="flex items-center gap-6">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">Home</NavLink>
+            <NavLink class="nav-link" href="comics">Comics</NavLink>
+            <NavLink class="nav-link" href="novels">Novels</NavLink>
+        </nav>
     </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+    <div class="flex items-center gap-4">
+        <button type="button" class="icon-btn" title="Toggle theme" onclick="toggleTheme()">◐</button>
+        <div class="hidden items-center gap-2 border-2 border-line bg-page px-3 py-1.5 md:flex">
+            <input type="text" placeholder="Search titles, authors..." class="w-44 bg-transparent text-sm outline-none" />
+            <span>🔍</span>
         </div>
+        <a href="/login" class="btn-solid">Log In</a>
+    </div>
+</header>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+<main>@Body</main>
 
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div>
+<footer class="border-t-[3px] border-line bg-ink px-8 py-12 text-center text-sm text-page">
+    <p>&copy; 2026 niji Entertainment. All Rights Reserved.</p>
+</footer>
