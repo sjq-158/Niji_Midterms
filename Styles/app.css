@@ -48,35 +48,44 @@
 @layer base {
   body {
     @apply bg-page font-body text-ink;
-    transition: background-color 0.25s ease, color 0.25s ease;
+    transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
   }
 }
 
 @layer components {
-  .nav-link { @apply rounded px-3 py-1.5 font-display text-sm font-bold uppercase text-ink; }
+  /* header */
+  .nav-link { @apply rounded px-[0.8rem] py-[0.4rem] font-display text-[0.9rem] font-bold uppercase text-ink; }
   .nav-link.active { @apply bg-accent text-[#F5F4F0]; }
+  .icon-btn { @apply flex cursor-pointer items-center justify-center border-2 border-line bg-panel p-[0.4rem] text-ink; }
+  .btn-solid { @apply inline-block cursor-pointer border-2 border-line bg-ink px-[1.4rem] py-2 font-display text-[0.8rem] font-extrabold uppercase text-page; }
 
-  .icon-btn { @apply flex cursor-pointer items-center justify-center border-2 border-line bg-panel p-1.5 text-ink; }
-  .square-btn { @apply flex size-9 cursor-pointer items-center justify-center border-2 border-line bg-panel text-lg font-black text-ink shadow-[2px_2px_0_var(--border-color)]; }
+  /* theme icon: moon in light mode, sun in dark mode */
+  .theme-sun { display: none; }
+  [data-theme="dark"] .theme-sun { display: block; }
+  [data-theme="dark"] .theme-moon { display: none; }
 
-  .btn-solid { @apply inline-block cursor-pointer border-2 border-line bg-ink px-5 py-2 font-display text-xs font-extrabold uppercase text-page; }
-  .btn-cta { @apply inline-block cursor-pointer border-2 border-line bg-panel px-7 py-3 font-display font-extrabold uppercase text-ink shadow-brutal transition hover:-translate-x-0.5 hover:-translate-y-0.5; }
+  /* buttons */
+  .square-btn { @apply flex size-9 cursor-pointer items-center justify-center border-2 border-line bg-panel text-[1.1rem] font-black text-ink shadow-[2px_2px_0_var(--border-color)]; }
+  .btn-cta { @apply inline-block cursor-pointer border-2 border-line bg-panel px-[1.8rem] py-[0.8rem] font-display font-extrabold uppercase text-ink shadow-brutal transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[6px_6px_0_var(--border-color)]; }
 
-  .pill { @apply cursor-pointer rounded-full border-2 border-line bg-panel px-5 py-1.5 font-display text-xs font-bold text-ink; }
+  /* filters */
+  .pill { @apply cursor-pointer rounded-[20px] border-2 border-line bg-panel px-[1.2rem] py-[0.4rem] font-display text-[0.8rem] font-bold text-ink; }
   .pill.active, .pill:hover { @apply bg-ink text-page; }
 
-  .tag { @apply border border-line bg-badge px-2 py-0.5 font-display text-[0.65rem] font-bold uppercase text-badge-ink; }
-  .section-title { @apply font-display text-3xl font-extrabold text-ink; }
+  /* cards */
+  .tag { @apply border border-line bg-badge px-2 py-[0.2rem] font-display text-[0.65rem] font-bold uppercase text-badge-ink; }
+  .section-title { @apply font-display text-[1.8rem] font-extrabold text-ink; }
+  .cover-card { @apply overflow-hidden border-2 border-line bg-page transition hover:-translate-y-[5px] hover:shadow-[4px_6px_0_var(--border-color)]; }
 
-  .cover-card { @apply overflow-hidden border-2 border-line bg-page transition hover:-translate-y-1 hover:shadow-[4px_6px_0_var(--border-color)]; }
-
-  .day-tab { @apply flex-1 cursor-pointer border-r-2 border-line py-4 text-center font-display font-extrabold text-ink last:border-r-0; }
+  /* weekly schedule */
+  .day-tab { @apply flex-1 cursor-pointer border-r-2 border-line py-4 text-center font-display text-[0.95rem] font-extrabold text-ink last:border-r-0; }
   .day-tab.active, .day-tab:hover { @apply bg-ink text-page; }
 
   .rank-badge {
-    @apply absolute -bottom-3.5 left-2.5 z-10 font-display text-7xl font-black leading-none text-ink;
+    @apply absolute -bottom-3.5 left-2.5 z-10 font-display text-[4.4rem] font-black leading-none text-ink;
     text-shadow: 3px 3px 0 var(--bg-primary), -3px -3px 0 var(--bg-primary);
   }
 
-  .form-input { @apply mb-5 w-full rounded-[10px] border-2 border-line bg-field px-4 py-3 text-ink outline-none focus:border-accent; }
+  /* auth */
+  .form-input { @apply mb-5 w-full rounded-[10px] border-2 border-line bg-field px-4 py-[0.85rem] text-[0.95rem] text-ink outline-none focus:border-accent; }
 }
