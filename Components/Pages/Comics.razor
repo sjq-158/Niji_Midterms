@@ -5,55 +5,146 @@
 
 <div class="mx-auto w-full max-w-[1280px] px-6 py-8">
     <div class="mb-8 flex flex-wrap gap-4 border-b-2 border-line pb-4">
-        @foreach (var f in _filters)
+        <GenreMenu Genres="_genres" Selected="_genre" Active="_filter == ComicFilter.Genre" OnPick="PickGenre" />
+        @foreach (var (label, filter) in _pills)
         {
-            <button class="pill @(f == _filter ? "active" : "")" @onclick="() => _filter = f">@f</button>
+            <button type="button" class="pill @(_filter == filter ? "active" : "")" @onclick="() => SetFilter(filter)">@label</button>
         }
     </div>
 
     <SpotlightCarousel Items="_spotlight" Height="h-[380px]" />
 
     <div class="mb-12 flex justify-around border-2 border-line bg-panel p-6">
-        @foreach (var (label, svg) in _categories)
+        @foreach (var (label, svg, filter) in _categories)
         {
-            <div class="flex cursor-pointer flex-col items-center gap-2 font-display text-xs font-extrabold text-ink">
-                <div class="flex size-[50px] items-center justify-center rounded-full border-2 border-line bg-page">
+            <button type="button"
+                    class="flex cursor-pointer flex-col items-center gap-2 font-display text-xs font-extrabold text-ink"
+                    @onclick="() => SetFilter(filter)">
+                <span class="flex size-[50px] items-center justify-center rounded-full border-2 border-line @(_filter == filter ? "bg-ink text-page" : "bg-page")">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">@((MarkupString)svg)</svg>
-                </div>
+                </span>
                 @label
-            </div>
+            </button>
         }
     </div>
 
-    <h2 class="section-title mb-4 !text-2xl">New &amp; Trending Webcomics</h2>
-    <div class="grid grid-cols-2 gap-6 md:grid-cols-5">
-        @foreach (var c in _comics)
-        {
-            <CoverCard Item="c" Height="h-[250px]" />
-        }
+    <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <h2 class="section-title !text-2xl">@Heading</h2>
+        <div class="flex items-center gap-3">
+            <span class="text-sm font-semibold text-muted">@_results.Count titles</span>
+            @if (_filter != ComicFilter.All)
+            {
+                <button type="button" class="btn-solid" @onclick="Clear">Clear Filter</button>
+            }
+        </div>
     </div>
+
+    @if (_results.Count == 0)
+    {
+        <div class="border-[3px] border-line bg-panel p-10 text-center shadow-brutal">
+            <p class="mb-4 font-display font-bold text-ink">No webcomics match this filter yet.</p>
+            <button type="button" class="btn-cta" @onclick="Clear">Show All</button>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-2 gap-6 md:grid-cols-5">
+            @foreach (var c in _results)
+            {
+                <CoverCard Item="c" Height="h-[250px]" />
+            }
+        </div>
+    }
 </div>
 
 @code {
-    private IReadOnlyList<Title> _comics = [];
+    private enum ComicFilter { All, Genre, Daily, Completed, Trending, Hot, Featured }
+
+    // Lets the Home genre tiles open /comics?genre=Romance
+    [SupplyParameterFromQuery(Name = "genre")] public string? GenreQuery { get; set; }
+
+    private IReadOnlyList<Title> _all = [];
+    private IReadOnlyList<Title> _results = [];
     private IReadOnlyList<SpotlightItem> _spotlight = [];
+    private IReadOnlyList<string> _genres = [];
 
-    private readonly string[] _filters = ["Genres ▾", "Daily Updates", "Completed", "Trending"];
-    private string _filter = "Genres ▾";
+    private ComicFilter _filter = ComicFilter.All;
+    private string? _genre;
 
-    private readonly (string Label, string Svg)[] _categories =
+    private readonly (string Label, ComicFilter Filter)[] _pills =
     [
-        ("Target", """<circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>"""),
-        ("Hot Reads", """<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>"""),
-        ("Unlimited", """<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>"""),
-        ("Updates", """<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>"""),
-        ("Trending", """<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline>""")
+        ("Daily Updates", ComicFilter.Daily),
+        ("Completed", ComicFilter.Completed),
+        ("Trending", ComicFilter.Trending)
     ];
+
+    private readonly (string Label, string Svg, ComicFilter Filter)[] _categories =
+    [
+        ("Target", """<circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle>""", ComicFilter.Featured),
+        ("Hot Reads", """<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>""", ComicFilter.Hot),
+        ("Unlimited", """<path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>""", ComicFilter.All),
+        ("Updates", """<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>""", ComicFilter.Daily),
+        ("Trending", """<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline>""", ComicFilter.Trending)
+    ];
+
+    private string Heading => _filter switch
+    {
+        ComicFilter.Genre => $"Genre: {_genre}",
+        ComicFilter.Daily => $"Updating on {DateTime.Now.DayOfWeek}",
+        ComicFilter.Completed => "Completed Webcomics",
+        ComicFilter.Trending => "Trending Webcomics",
+        ComicFilter.Hot => "Hot Reads",
+        ComicFilter.Featured => "Featured Picks",
+        _ => "New & Trending Webcomics"
+    };
 
     protected override void OnInitialized()
     {
-        // Same order as the grid in comics.html
-        _comics = Catalog.GetByIds(3, 6, 9, 5, 1, 2, 10, 7, 4, 8);
+        // Same order as the original comics grid
+        _all = Catalog.GetByIds(3, 6, 9, 5, 1, 2, 10, 7, 4, 8);
         _spotlight = Catalog.GetSpotlight(TitleKind.Comic);
+        _genres = Catalog.GetGenres(TitleKind.Comic);
+        Apply();
+    }
+
+    protected override void OnParametersSet()
+    {
+        var match = _genres.FirstOrDefault(g => g.Equals(GenreQuery, StringComparison.OrdinalIgnoreCase));
+        if (match is not null)
+        {
+            _filter = ComicFilter.Genre;
+            _genre = match;
+            Apply();
+        }
+    }
+
+    private void SetFilter(ComicFilter filter)
+    {
+        _filter = filter;
+        _genre = null;
+        Apply();
+    }
+
+    private void PickGenre(string genre)
+    {
+        _filter = ComicFilter.Genre;
+        _genre = genre;
+        Apply();
+    }
+
+    private void Clear() => SetFilter(ComicFilter.All);
+
+    private void Apply()
+    {
+        _results = _filter switch
+        {
+            ComicFilter.Genre => _all.Where(t => _genre is not null && t.Genres.Contains(_genre, StringComparer.OrdinalIgnoreCase)).ToList(),
+            ComicFilter.Daily => Catalog.GetScheduledTitles(DateTime.Now.DayOfWeek),
+            ComicFilter.Completed => _all.Where(t => t.IsCompleted).ToList(),
+            ComicFilter.Trending => Catalog.GetTrending(5),
+            ComicFilter.Hot => _all.Where(t => t.Badge is "HOT" or "HIT" or "TOP").ToList(),
+            ComicFilter.Featured => Catalog.GetByIds(_spotlight.Select(s => s.TitleId).Distinct().ToArray()),
+            _ => _all
+        };
     }
 }
