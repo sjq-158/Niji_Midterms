@@ -34,10 +34,14 @@
         @if (!BareHeader)
         {
             <div class="hidden items-center gap-2 border-2 border-line bg-page px-[0.8rem] py-[0.4rem] md:flex">
-                <input type="text" placeholder="Search titles, authors..." class="w-[180px] bg-transparent text-[0.85rem] text-ink outline-none" />
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
+                <input type="text" placeholder="Search titles, authors..."
+                       class="w-[180px] bg-transparent text-[0.85rem] text-ink outline-none"
+                       @bind="_query" @bind:event="oninput" @onkeydown="OnSearchKey" />
+                <button type="button" class="cursor-pointer text-ink" title="Search" @onclick="Search">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
             </div>
         }
 
@@ -60,9 +64,16 @@
 </footer>
 
 @code {
-    // comics.html and novel.html show only the theme button in their header.
+    private string _query = "";
+
+    // comics and novels pages show only the theme button in their header.
     private bool BareHeader =>
-        new Uri(Nav.Uri).AbsolutePath.TrimEnd('/').ToLowerInvariant() is "/comics" or "/novels";
+        CurrentPath is "/comics" or "/novels";
+
+    private bool OnSearchPage => CurrentPath == "/search";
+
+    private string CurrentPath =>
+        new Uri(Nav.Uri).AbsolutePath.TrimEnd('/').ToLowerInvariant();
 
     protected override void OnInitialized()
     {
@@ -71,7 +82,24 @@
     }
 
     private void Refresh() => InvokeAsync(StateHasChanged);
-    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => InvokeAsync(StateHasChanged);
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        if (!OnSearchPage) _query = "";
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void OnSearchKey(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") Search();
+    }
+
+    private void Search()
+    {
+        var q = _query.Trim();
+        if (q.Length == 0) return;
+        Nav.NavigateTo($"/search?q={Uri.EscapeDataString(q)}");
+    }
 
     private void Logout()
     {

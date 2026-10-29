@@ -1,0 +1,47 @@
+@page "/search"
+@inject CatalogService Catalog
+
+<PageTitle>niji - Search</PageTitle>
+
+<div class="mx-auto w-full max-w-[1280px] px-6 py-8">
+    <div class="mb-6 flex items-end justify-between border-b-2 border-line pb-2">
+        <h1 class="section-title">
+            @(string.IsNullOrWhiteSpace(Q) ? "Search" : $"Results for \"{Q}\"")
+        </h1>
+        <span class="text-sm font-semibold text-muted">@_results.Count found</span>
+    </div>
+
+    @if (string.IsNullOrWhiteSpace(Q))
+    {
+        <div class="border-[3px] border-line bg-panel p-10 text-center shadow-brutal">
+            <p class="font-display font-bold text-ink">Type a title, author, or genre in the search bar and press Enter.</p>
+        </div>
+    }
+    else if (_results.Count == 0)
+    {
+        <div class="border-[3px] border-line bg-panel p-10 text-center shadow-brutal">
+            <p class="mb-4 font-display font-bold text-ink">Nothing matched your search.</p>
+            <div class="flex justify-center gap-3">
+                <a href="/comics" class="btn-cta">Browse Comics</a>
+                <a href="/novels" class="btn-cta">Browse Novels</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-2 gap-6 md:grid-cols-5">
+            @foreach (var t in _results)
+            {
+                <CoverCard Item="t" Height="h-[260px]" ShowBadge="true" Subtitle="@($"{t.Kind} · {t.Byline}")" />
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [SupplyParameterFromQuery(Name = "q")] public string? Q { get; set; }
+
+    private IReadOnlyList<Title> _results = [];
+
+    protected override void OnParametersSet() => _results = Catalog.Search(Q);
+}
