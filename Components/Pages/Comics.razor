@@ -5,7 +5,7 @@
 
 <div class="mx-auto w-full max-w-[1280px] px-6 py-8">
     <div class="mb-8 flex flex-wrap gap-4 border-b-2 border-line pb-4">
-        <GenreMenu Genres="_genres" Selected="_genre" Active="_filter == ComicFilter.Genre" OnPick="PickGenre" />
+        <GenreMenu Genres="_genres" Selected="@_genre" Active="@(_filter == ComicFilter.Genre)" OnPick="PickGenre" />
         @foreach (var (label, filter) in _pills)
         {
             <button type="button" class="pill @(_filter == filter ? "active" : "")" @onclick="() => SetFilter(filter)">@label</button>
@@ -127,6 +127,13 @@
 
     private void PickGenre(string genre)
     {
+        // The dropdown sends an empty string for "All Genres".
+        if (string.IsNullOrWhiteSpace(genre))
+        {
+            Clear();
+            return;
+        }
+
         _filter = ComicFilter.Genre;
         _genre = genre;
         Apply();
