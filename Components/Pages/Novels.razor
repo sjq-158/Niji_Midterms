@@ -5,33 +5,106 @@
 
 <div class="mx-auto w-full max-w-[1280px] px-6 py-8">
     <div class="mb-8 flex flex-wrap gap-4 border-b-2 border-line pb-4">
-        @foreach (var f in _filters)
+        <GenreMenu Genres="_genres" Selected="_genre" Active="_filter == NovelFilter.Genre" OnPick="PickGenre" />
+        @foreach (var (label, filter) in _pills)
         {
-            <button class="pill @(f == _filter ? "active" : "")" @onclick="() => _filter = f">@f</button>
+            <button type="button" class="pill @(_filter == filter ? "active" : "")" @onclick="() => SetFilter(filter)">@label</button>
         }
     </div>
 
     <SpotlightCarousel Items="_spotlight" Height="h-[400px]" Large="true" />
 
-    <h2 class="section-title mb-4 !text-2xl">Popular Webnovels</h2>
-    <div class="grid grid-cols-2 gap-6 md:grid-cols-5">
-        @foreach (var n in _novels)
-        {
-            <CoverCard Item="n" Height="h-[260px]" Subtitle="@n.Byline" />
-        }
+    <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <h2 class="section-title !text-2xl">@Heading</h2>
+        <div class="flex items-center gap-3">
+            <span class="text-sm font-semibold text-muted">@_results.Count titles</span>
+            @if (_filter != NovelFilter.All)
+            {
+                <button type="button" class="btn-solid" @onclick="Clear">Clear Filter</button>
+            }
+        </div>
     </div>
+
+    @if (_results.Count == 0)
+    {
+        <div class="border-[3px] border-line bg-panel p-10 text-center shadow-brutal">
+            <p class="mb-4 font-display font-bold text-ink">No webnovels match this filter yet.</p>
+            <button type="button" class="btn-cta" @onclick="Clear">Show All</button>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-2 gap-6 md:grid-cols-5">
+            @foreach (var n in _results)
+            {
+                <CoverCard Item="n" Height="h-[260px]" Subtitle="@SubtitleFor(n)" />
+            }
+        </div>
+    }
 </div>
 
 @code {
-    private IReadOnlyList<Title> _novels = [];
-    private IReadOnlyList<SpotlightItem> _spotlight = [];
+    private enum NovelFilter { All, Genre, Volume, Trending }
 
-    private readonly string[] _filters = ["Genres ▾", "By Volume", "Trending Webnovels"];
-    private string _filter = "Genres ▾";
+    private IReadOnlyList<Title> _all = [];
+    private IReadOnlyList<Title> _results = [];
+    private IReadOnlyList<SpotlightItem> _spotlight = [];
+    private IReadOnlyList<string> _genres = [];
+
+    private NovelFilter _filter = NovelFilter.All;
+    private string? _genre;
+
+    private readonly (string Label, NovelFilter Filter)[] _pills =
+    [
+        ("By Volume", NovelFilter.Volume),
+        ("Trending Webnovels", NovelFilter.Trending)
+    ];
+
+    private string Heading => _filter switch
+    {
+        NovelFilter.Genre => $"Genre: {_genre}",
+        NovelFilter.Volume => "Webnovels by Volume",
+        NovelFilter.Trending => "Trending Webnovels",
+        _ => "Popular Webnovels"
+    };
 
     protected override void OnInitialized()
     {
-        _novels = Catalog.GetTitles(TitleKind.Novel);
+        _all = Catalog.GetTitles(TitleKind.Novel);
         _spotlight = Catalog.GetSpotlight(TitleKind.Novel);
+        _genres = Catalog.GetGenres(TitleKind.Novel);
+        Apply();
+    }
+
+    private string SubtitleFor(Title n) =>
+        _filter == NovelFilter.Volume
+            ? $"{(n.Volumes == 1 ? "1 volume" : $"{n.Volumes} volumes")} · {n.Author}"
+            : n.Byline;
+
+    private void SetFilter(NovelFilter filter)
+    {
+        _filter = filter;
+        _genre = null;
+        Apply();
+    }
+
+    private void PickGenre(string genre)
+    {
+        _filter = NovelFilter.Genre;
+        _genre = genre;
+        Apply();
+    }
+
+    private void Clear() => SetFilter(NovelFilter.All);
+
+    private void Apply()
+    {
+        _results = _filter switch
+        {
+            NovelFilter.Genre => _all.Where(t => _genre is not null && t.Genres.Contains(_genre, StringComparer.OrdinalIgnoreCase)).ToList(),
+            NovelFilter.Volume => _all.OrderByDescending(t => t.Volumes).ToList(),
+            NovelFilter.Trending => _all.Take(5).ToList(),
+            _ => _all
+        };
     }
 }
