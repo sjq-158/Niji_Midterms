@@ -7,14 +7,14 @@
     <div class="flex flex-col justify-center bg-accent px-12 py-16 text-[#F5F4F0] md:border-r-[3px] md:border-line">
         <h1 class="mb-[1.2rem] font-display text-[3.2rem] font-black leading-[1.1]">@Hero.Title</h1>
         <p class="mb-8 leading-[1.6] text-panel">@Hero.Desc</p>
-        <a href="/comics" class="btn-cta self-start">Start Reading</a>
+        <a href="/title/@Hero.TitleId" class="btn-cta self-start">Start Reading</a>
     </div>
     <div class="relative flex min-h-[380px] items-end bg-cover bg-center p-10"
          style="background-image:url('@Hero.Image')">
         <div class="absolute inset-0 bg-[#112250]/45"></div>
         <div class="absolute right-5 top-5 z-10 flex gap-2">
-            <button class="square-btn !size-10 !text-[1.2rem]" @onclick="PrevHero">‹</button>
-            <button class="square-btn !size-10 !text-[1.2rem]" @onclick="NextHero">›</button>
+            <button type="button" class="square-btn !size-10 !text-[1.2rem]" @onclick="PrevHero">‹</button>
+            <button type="button" class="square-btn !size-10 !text-[1.2rem]" @onclick="NextHero">›</button>
         </div>
         <div class="relative z-10 w-full border-[3px] border-line bg-page px-8 py-6 shadow-[6px_6px_0_var(--border-color)]">
             <span class="text-xs font-extrabold uppercase text-muted">@Hero.Tag</span>
@@ -31,7 +31,7 @@
         <div class="flex border-b-[3px] border-line bg-panel">
             @foreach (var d in _days)
             {
-                <button class="day-tab @(d == _day ? "active" : "")" @onclick="() => _day = d">
+                <button type="button" class="day-tab @(d == _day ? "active" : "")" @onclick="() => _day = d">
                     @d.ToString()[..3].ToUpper()
                 </button>
             }
@@ -40,15 +40,15 @@
             <div class="mb-6 flex items-center justify-between">
                 <h3 class="font-display text-[1.4rem] font-black uppercase text-ink">@_day Lineup</h3>
                 <div class="flex gap-2">
-                    <button class="square-btn !size-10 !text-[1.2rem]" @onclick="PrevDay">‹</button>
-                    <button class="square-btn !size-10 !text-[1.2rem]" @onclick="NextDay">›</button>
+                    <button type="button" class="square-btn !size-10 !text-[1.2rem]" @onclick="PrevDay">‹</button>
+                    <button type="button" class="square-btn !size-10 !text-[1.2rem]" @onclick="NextDay">›</button>
                 </div>
             </div>
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach (var (entry, title) in Catalog.GetSchedule(_day))
                 {
                     <a href="/title/@title.Id" class="flex flex-col overflow-hidden border-2 border-line bg-page shadow-brutal-sm">
-                        <div class="h-60 border-b-2 border-line bg-cover bg-center" style="background-image:url('@title.Image(400)')"></div>
+                        <div class="h-60 border-b-2 border-line bg-cover bg-center" style="background-image:url('@title.ImageUrl')"></div>
                         <div class="p-4">
                             <div class="font-display font-extrabold text-ink">@title.Name</div>
                             <div class="mt-[0.2rem] text-xs text-muted">@entry.Episode</div>
@@ -72,41 +72,44 @@
 
     <div class="mb-6 flex items-end justify-between border-b-2 border-line pb-2"><h2 class="section-title">Explore Popular Genres</h2></div>
     <div class="mb-16 grid grid-cols-2 gap-4 md:grid-cols-5">
-        @foreach (var (name, photo) in _genres)
+        @foreach (var (name, cover) in _genres)
         {
-            <div class="relative flex h-[120px] cursor-pointer items-end overflow-hidden border-2 border-line bg-cover bg-center p-[0.8rem]"
-                 style="background-image:url('@Img(photo, 400)')">
+            <a href="@GenreHref(name)"
+               class="relative flex h-[120px] cursor-pointer items-end overflow-hidden border-2 border-line bg-cover bg-center p-[0.8rem]"
+               style="background-image:url('@Img(cover)')">
                 <div class="absolute inset-0 bg-linear-to-t from-[#112250]/85 to-transparent"></div>
                 <span class="relative z-[1] font-display font-extrabold uppercase text-[#F5F4F0]">@name</span>
-            </div>
+            </a>
         }
     </div>
 
     <div class="mb-8 grid border-[3px] border-line bg-panel md:grid-cols-[320px_1fr]">
         <div class="min-h-[260px] border-line bg-cover bg-center md:border-r-[3px]"
-             style="background-image:url('@Img(Photos.Banner, 800)')"></div>
+             style="background-image:url('@Img(Covers.UnderTheOakTree)')"></div>
         <div class="flex flex-col justify-center p-10">
             <span class="font-display text-[0.8rem] font-extrabold uppercase text-muted">NIJI EXCLUSIVE WEBNOVEL</span>
             <h3 class="my-[0.4rem] font-display text-[2rem] font-black text-ink">Under the Oak Tree</h3>
             <p class="mb-6 text-[0.9rem] text-ink">Follow the captivating story of Maximilian and Riftan in this world-renowned fantasy web novel. Read free on niji.</p>
-            <a href="/novels" class="btn-cta self-start !px-[1.4rem] !py-[0.6rem] !text-[0.8rem]">Read Webnovel</a>
+            <a href="/title/11" class="btn-cta self-start !px-[1.4rem] !py-[0.6rem] !text-[0.8rem]">Read Webnovel</a>
         </div>
     </div>
 </div>
 
 @code {
-    private record HeroSlide(string Title, string Desc, string Image, string Tag, string CardTitle, string CardSub);
+    private record HeroSlide(int TitleId, string Title, string Desc, string Image, string Tag, string CardTitle, string CardSub);
 
-    private static string Img(string photo, int width) => Models.Title.Url(photo, width);
+    private static string Img(string cover) => Models.Title.Url(cover);
+
+    private static string GenreHref(string genre) => $"/comics?genre={Uri.EscapeDataString(genre)}";
 
     private readonly HeroSlide[] _slides =
     [
-        new("Discover Your Next Favorite Story",
+        new(5, "Discover Your Next Favorite Story",
             "Explore thousands of digital webcomics and light novels updated daily. Dive into high-stakes action, romance, and exclusive niji original series.",
-            Img(Photos.OakTree, 1200), "FEATURED ORIGINAL", "Under the Oak Tree", "A grand romance of chivalry, magic, and devotion."),
-        new("Unleash Epic Action & Fantasy",
+            Img(Covers.UnderTheOakTree), "FEATURED ORIGINAL", "Under the Oak Tree", "A grand romance of chivalry, magic, and devotion."),
+        new(1, "Unleash Epic Action & Fantasy",
             "Journey across perilous dungeons and witness legendary shadow sovereigns in our curated action library.",
-            Img(Photos.Hunter, 1200), "NEW SEASON", "Solo Leveling", "Rise from the weakest hunter to the sovereign of shadows.")
+            Img(Covers.SoloLeveling), "NEW SEASON", "Solo Leveling", "Rise from the weakest hunter to the sovereign of shadows.")
     ];
 
     private readonly DayOfWeek[] _days =
@@ -115,10 +118,10 @@
         DayOfWeek.Friday, DayOfWeek.Saturday, DayOfWeek.Sunday
     ];
 
-    private readonly (string Name, string Photo)[] _genres =
+    private readonly (string Name, string Cover)[] _genres =
     [
-        ("Romance", Photos.OakTree), ("Fantasy", Photos.Hunter), ("Action", Photos.Boxer),
-        ("Thriller", Photos.Count), ("Sci-Fi", Photos.Reader)
+        ("Romance", Covers.UnderTheOakTree), ("Fantasy", Covers.SoloLeveling), ("Action", Covers.Eleceed),
+        ("Thriller", Covers.SweetHome), ("Sports", Covers.TheBoxer)
     ];
 
     private int _hero;

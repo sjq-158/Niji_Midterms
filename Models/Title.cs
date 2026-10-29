@@ -11,13 +11,19 @@ public class Title
     public TitleKind Kind { get; set; }
     public string Badge { get; set; } = "";
     public string? Tagline { get; set; }
-    public string Photo { get; set; } = "";
 
-    public string ImageUrl => Image(600);
+    // File name inside wwwroot/images/manhwas, e.g. "solo-leveling.jpg"
+    public string Cover { get; set; } = "";
+
+    public bool IsCompleted { get; set; }
+    public int Volumes { get; set; }
+
+    public string ImageUrl => Url(Cover);
     public string Byline => string.IsNullOrWhiteSpace(Genre) ? Author : $"{Author} / {Genre}";
 
-    public string Image(int width) => Url(Photo, width);
+    // "Action · Fantasy" -> ["Action", "Fantasy"]
+    public IEnumerable<string> Genres =>
+        Genre.Split('·', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-    public static string Url(string photo, int width) =>
-        $"https://images.unsplash.com/{photo}?auto=format&fit=crop&w={width}&q=80";
+    public static string Url(string cover) => $"/images/manhwas/{cover}";
 }
