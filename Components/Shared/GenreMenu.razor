@@ -1,0 +1,34 @@
+<div class="relative">
+    <button type="button" class="pill @(Active ? "active" : "")" @onclick="Toggle">@(Selected ?? "Genres") ▾</button>
+
+    @if (_open)
+    {
+        <div class="fixed inset-0 z-10" @onclick="Close"></div>
+        <div class="absolute left-0 top-full z-20 mt-2 max-h-72 min-w-[210px] overflow-y-auto border-2 border-line bg-page shadow-brutal">
+            @foreach (var g in Genres)
+            {
+                <button type="button"
+                        class="block w-full cursor-pointer px-4 py-2 text-left font-display text-sm font-bold text-ink hover:bg-ink hover:text-page"
+                        @onclick="() => Pick(g)">@g</button>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<string> Genres { get; set; } = [];
+    [Parameter] public string? Selected { get; set; }
+    [Parameter] public bool Active { get; set; }
+    [Parameter] public EventCallback<string> OnPick { get; set; }
+
+    private bool _open;
+
+    private void Toggle() => _open = !_open;
+    private void Close() => _open = false;
+
+    private async Task Pick(string genre)
+    {
+        _open = false;
+        await OnPick.InvokeAsync(genre);
+    }
+}
