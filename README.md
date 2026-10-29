@@ -1,29 +1,46 @@
 # 🌸 niji - Webcomics & Webnovels Platform
 
-**niji** is a modern, responsive web application designed for reading and tracking digital webcomics, manhwas, and light novels[cite: 5, 7]. Built with clean layouts and an interactive UI, niji offers dynamic features such as light/dark theme toggling, interactive weekly release schedules, category filtering, and user authentication.
+**niji** is a Blazor web app for browsing and tracking webcomics, manhwas, and light novels. It has a light/dark theme, a weekly release schedule, working filters, search, and a personal reading library.
 
----
+## Features
 
-## 🚀 Features
+* **Home:** hero carousel, weekly lineup tabs, top trending ranking, genre tiles, and an exclusive webnovel banner.
+* **Comics and Novels:** spotlight carousels plus working filters (genre dropdown, daily updates, completed, trending, by volume).
+* **Search:** search titles, authors, and genres from the header.
+* **Title details:** add or remove a title from your library.
+* **Accounts and library:** register or sign in, then set reading status (Reading, Plan To Read, Completed). Demo account: `demo@niji.com` / `niji123`.
+* **Theme toggle:** light and dark mode saved in the browser.
 
-* **Multi-Page Interface:**
-  * **Home (`home.html`):** Features a dynamic hero carousel, daily release lineup schedules, top trending rankings, and popular genre grid categories.
-  * **Comics (`comics.html`):** Dedicated webtoons and manhwa library with spotlight carousels and quick-access genre filters[cite: 4].
-  * **Novels (`novel.html`):** Dedicated webnovel catalog featuring large showcase carousels and grid layouts[cite: 3].
-  * **Authentication (`login.html` & `register.html`):** Clean sign-in and account creation pages featuring custom form controls and split-screen responsive layouts[cite: 5, 6].
-* **Theme Customization:** Seamless toggle between **Light Mode** (`#F5F4F0` theme) and **Dark Mode** (`#112250` theme) with persistent styling.
-* **Interactive Elements:**
-  * Weekly lineup schedule tabs (Monday through Sunday) with interactive pagination[cite: 7].
-  * Custom card hover effects, badge tags, and rank overlays[cite: 7].
+## Tech Stack
 
----
+* ASP.NET Core Blazor (.NET 8, Interactive Server)
+* Tailwind CSS v4 (CLI)
+* In-memory demo data (no database)
 
-## 📂 Project Structure
+## Run Locally
+
+```bash
+git clone https://github.com/sjq-158/Niji_Midterms.git
+cd Niji_Midterms
+npm install
+npm run tailwind:build
+dotnet run --launch-profile http
+```
+
+Open http://localhost:5008. While developing, keep `npm run tailwind:watch` running in a second terminal.
+
+## Project Structure
 
 ```text
 Niji_Midterms/
-├── home.html         # Landing page and main dashboard
-├── comics.html       # Webcomics and manhwas catalog
-├── novel.html        # Webnovels catalog
-├── login.html        # User sign-in interface
-└── register.html     # User registration interface
+├── Components/
+│   ├── Layout/MainLayout.razor      # header, search, footer
+│   ├── Pages/                       # Home, Comics, Novels, Search, TitleDetails, Library, Auth
+│   └── Shared/                      # CoverCard, SpotlightCarousel, GenreMenu
+├── Models/                          # Title, AppUser, LibraryEntry, ScheduleEntry, SpotlightItem
+├── Services/                        # CatalogService, AccountService
+├── Styles/app.css                   # Tailwind source
+└── wwwroot/
+    ├── css/tailwind.css             # generated (git-ignored)
+    └── images/manhwas/              # local cover images
+```
